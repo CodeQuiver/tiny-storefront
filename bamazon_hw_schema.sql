@@ -1,6 +1,6 @@
-CREATE DATABASE bamazon;
+CREATE DATABASE tiny_storefront_db;
 
-USE bamazon;
+USE tiny_storefront_db;
 
 CREATE TABLE products(
 	item_id INT AUTO_INCREMENT NOT NULL,

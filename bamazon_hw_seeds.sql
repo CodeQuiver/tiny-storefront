@@ -1,4 +1,5 @@
 -- themed seed items around gardening and birdwatching hobbies
+USE tiny_storefront_db;
 
 INSERT INTO products (product_name, department_name, price, stock_quantity, item_comments)
 VALUES ("Birdhouse", "birdwatching", 27.99, 80, "Treated Cedar birdhouse"), 
