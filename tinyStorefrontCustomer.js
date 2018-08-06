@@ -18,15 +18,20 @@ var connection = mysql.createConnection({
 //================== end configure connection =================//
 
 //================== FUNCTIONS =======================//
+
+//PRINT ITEMS IN STOCK
 function printItems() {
     connection.query("SELECT * FROM products", function(err, res) {
         if (err) throw err;
         console.log(res); //this should log the result as json
         //place a loop here that logs an entry for each item not in JSON format
+        //include "if(quantity<1) continue;" so the loop will skip logging items that are out of stock
     });
 };
+//END PRINT ITEMS IN STOCK
 
-//inquirer function
+
+//INQUIRER FUNCTION
 function userPrompt() {
   inquirer
     .prompt([
@@ -52,22 +57,27 @@ function userPrompt() {
               //if quantity in database > quantity requested (inquirerResponse.itemQuantity), run fulfillOrder function
         });
 }
+//END INQUIRER FUNCTION
 
-//fulfill order function
-  // show the customer the total cost of their purchase, item name, and item quantity
-  // Ask to confirm
-  // update the SQL database to reflect the remaining quantity.
-  // display thank you message
 
-  // re-set for next order
-  // call printItems(); 
-  // userPrompt();  
+//FULFILL ORDER FUNCTION
+    // show the customer the total cost of their purchase, item name, and item quantity
+    // Ask to confirm
+    // update the SQL database to reflect the remaining quantity.
+    // display thank you message
 
-//error message function
-function notAvailableErrorMessage(stringWhatIsntAvailable) { //can enter any string in the specifics such as "insufficient quantity" or "no item with an ID of (user entry for itemID) is" item only or item and quantity
+    // re-set for next order
+    // call printItems(); 
+    // call userPrompt();
+// END FULFILL ORDER FUNCTION
+
+
+//ERROR FUNCTION WHEN AN ITEM OR QUANTITY IS NOT AVAILABLE
+function notAvailableErrorMessage(stringWhatIsntAvailable) { //can enter any string in the specifics such as "insufficient quantity" or "no item with an ID of (user entry for itemID) is"
   console.log("We're sorry, " + stringWhatIsntAvailable + " in stock.");
   userPrompt(); //re-initializes user prompt
 }
+//END ERROR FUNCTION WHEN AN ITEM OR QUANTITY IS NOT AVAILABLE
 
 //================== END FUNCTIONS =======================//
 
@@ -79,10 +89,17 @@ connection.connect(function(err) {
   if (err) throw err;
   // console.log("connected as id " + connection.threadId);
   console.log("Welcome to the Tiny Storefront!\nAn online boutique specializing in equipment for your outdoor hobbies.\n");
+
   //print items for sale to console
-  printItems();
-  //prompt customer for selection
-  userPrompt();
+  printItems()
+  .then(
+    // console.log("testing- this is running inside '.then' promise after 'printItems' ")
+    //set this up in .then statement so these will happen in order in case reading from the database causes a delay.
+    //prompt customer for selection
+    userPrompt()
+  );
+
+
 });
 
 //================== END MAIN PROGRAM FLOW =======================//
