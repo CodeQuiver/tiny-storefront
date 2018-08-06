@@ -1,6 +1,7 @@
 var mysql = require("mysql");
-//need to also require inquirer
+var inquirer = require("inquirer");
 
+//================== configure connection =================//
 var connection = mysql.createConnection({
   host: "localhost",
 
@@ -11,20 +12,77 @@ var connection = mysql.createConnection({
   user: "root",
 
   // Your password
-  password: "", //need to re-set my password on mysql database to nothing
+  password: "password", //need to re-set my password on mysql database to nothing
   database: "tiny_storefront_db"
 });
+//================== end configure connection =================//
 
-connection.connect(function(err) {
-  if (err) throw err;
-  console.log("connected as id " + connection.threadId);
-  afterConnection();
-});
-
-function afterConnection() {
+//================== FUNCTIONS =======================//
+function printItems() {
     connection.query("SELECT * FROM products", function(err, res) {
         if (err) throw err;
         console.log(res); //this should log the result as json
-        connection.end(); //ends the connection
+        //place a loop here that logs an entry for each item not in JSON format
     });
 };
+
+//inquirer function
+function userPrompt() {
+  inquirer
+    .prompt([
+        // Here we create a basic text prompt.
+        {
+            type: "input",
+            message: "To place an order, please enter the item's ID.",
+            name: "itemID"
+        },
+        // Quest
+        {
+            type: "input",
+            message: "How many would you like?",
+            name: "itemQuantity"
+        }])
+        .then(function(inquirerResponse){ //response back to user here
+
+          //match item id (inquirerResponse.itemID) to database item id- check if it exists
+            //if no, return to error prompt -> notAvailableErrorMessage("no item with an ID of BLANK is");
+
+            //if yes, new logic tree to check if item is available
+              //if quantity in database < quantity requested (inquirerResponse.itemQuantity), call error prompt function -> notAvailableErrorMessage("insufficient quantity");
+              //if quantity in database > quantity requested (inquirerResponse.itemQuantity), run fulfillOrder function
+        });
+}
+
+//fulfill order function
+  // show the customer the total cost of their purchase, item name, and item quantity
+  // Ask to confirm
+  // update the SQL database to reflect the remaining quantity.
+  // display thank you message
+
+  // re-set for next order
+  // call printItems(); 
+  // userPrompt();  
+
+//error message function
+function notAvailableErrorMessage(stringWhatIsntAvailable) { //can enter any string in the specifics such as "insufficient quantity" or "no item with an ID of (user entry for itemID) is" item only or item and quantity
+  console.log("We're sorry, " + stringWhatIsntAvailable + " in stock.");
+  userPrompt(); //re-initializes user prompt
+}
+
+//================== END FUNCTIONS =======================//
+
+
+//================== MAIN PROGRAM FLOW =======================//
+
+// Start Connection
+connection.connect(function(err) {
+  if (err) throw err;
+  // console.log("connected as id " + connection.threadId);
+  console.log("Welcome to the Tiny Storefront!\nAn online boutique specializing in equipment for your outdoor hobbies.\n");
+  //print items for sale to console
+  printItems();
+  //prompt customer for selection
+  userPrompt();
+});
+
+//================== END MAIN PROGRAM FLOW =======================//
