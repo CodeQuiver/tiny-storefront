@@ -94,7 +94,7 @@ connection.connect(function(err) {
   console.log("Welcome to the Tiny Storefront!\nAn online boutique specializing in equipment for your outdoor hobbies.\n");
 
   //print items for sale to console
-  printItems(userPrompt()); //trying to set it up so list prints, *then* the prompt starts, but having trouble.
+  printItems(userPrompt); //trying to set it up so list prints, *then* the prompt starts, but having trouble.
   // .then(
   //   // console.log("testing- this is running inside '.then' promise after 'printItems' ")
   //   //set this up in .then statement so these will happen in order in case reading from the database causes a delay.
