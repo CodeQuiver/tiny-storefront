@@ -20,13 +20,16 @@ var connection = mysql.createConnection({
 //================== FUNCTIONS =======================//
 
 //PRINT ITEMS IN STOCK
-function printItems() {
+function printItems(callback) {
     connection.query("SELECT * FROM products", function(err, res) {
         if (err) throw err;
         console.log(res); //this should log the result as json
         //place a loop here that logs an entry for each item not in JSON format
         //include "if(quantity<1) continue;" so the loop will skip logging items that are out of stock
+        callback();
     });
+    
+    
 };
 //END PRINT ITEMS IN STOCK
 
@@ -73,10 +76,10 @@ function userPrompt() {
 
 
 //ERROR FUNCTION WHEN AN ITEM OR QUANTITY IS NOT AVAILABLE
-function notAvailableErrorMessage(stringWhatIsntAvailable) { //can enter any string in the specifics such as "insufficient quantity" or "no item with an ID of (user entry for itemID) is"
-  console.log("We're sorry, " + stringWhatIsntAvailable + " in stock.");
-  userPrompt(); //re-initializes user prompt
-}
+// function notAvailableErrorMessage(stringWhatIsntAvailable) { //can enter any string in the specifics such as "insufficient quantity" or "no item with an ID of (user entry for itemID) is"
+//   console.log("We're sorry, " + stringWhatIsntAvailable + " in stock.");
+//   userPrompt(); //re-initializes user prompt
+// }
 //END ERROR FUNCTION WHEN AN ITEM OR QUANTITY IS NOT AVAILABLE
 
 //================== END FUNCTIONS =======================//
@@ -91,13 +94,13 @@ connection.connect(function(err) {
   console.log("Welcome to the Tiny Storefront!\nAn online boutique specializing in equipment for your outdoor hobbies.\n");
 
   //print items for sale to console
-  printItems()
-  .then(
-    // console.log("testing- this is running inside '.then' promise after 'printItems' ")
-    //set this up in .then statement so these will happen in order in case reading from the database causes a delay.
-    //prompt customer for selection
-    userPrompt()
-  );
+  printItems(userPrompt()); //trying to set it up so list prints, *then* the prompt starts, but having trouble.
+  // .then(
+  //   // console.log("testing- this is running inside '.then' promise after 'printItems' ")
+  //   //set this up in .then statement so these will happen in order in case reading from the database causes a delay.
+  //   //prompt customer for selection
+  
+  // );
 
 
 });
