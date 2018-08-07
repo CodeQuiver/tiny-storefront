@@ -49,11 +49,28 @@ function printItems(callback) {
           //TODO- optional- split all parts into separate lines so each part of entry is only printed if not null
         }
         callback();
-    });
-    
-    
+    });   
 };
 //END PRINT ITEMS IN STOCK
+
+
+//PRINT RECEIPT
+function printReceipt(orderedItemName, orderedItemQuant, orderedItemUnitPrice) {
+  // show the customer the item name, item quantity, unit price
+  console.log("Your Order Details: " +
+  "\n" + orderedItemName +
+  "\nUnit Price: " + orderedItemUnitPrice.toLocaleString("en-US", {style: "currency", currency: "USD", minimumFractionDigits: 2}) + 
+  "Quantity: " + orderedItemQuant
+  );
+
+  // calculate total cost of purchase
+  var totalPurchase = orderedItemUnitPrice * orderedItemQuant;
+
+  // then show customer total cost of their purchase
+  console.log("Total Cost: " + totalPurchase.toLocaleString("en-US", {style: "currency", currency: "USD", minimumFractionDigits: 2}));
+};
+
+//END PRINT RECEIPT
 
 
 //INQUIRER FUNCTION
@@ -72,7 +89,7 @@ function userPrompt() {
             message: "How many would you like?",
             name: "userItemQuantity"
         }])
-        .then(function(inquirerResponse){ //process user's responses
+        .then(function(inquirerResponse){ //process user's responses, matching against database
           connection.query("SELECT * FROM products WHERE ?", [
             {
               item_id: inquirerResponse.UserItemID
@@ -92,8 +109,9 @@ function userPrompt() {
                 notAvailableErrorMessage(errorStringQuant);
               }
               else{
-                console.log("TESTING- This is where the fulfill order function would run");
-                // run fulfillOrder function
+                console.log("TESTING- fulfill order function about to run");
+                // run fulfillOrder function with res.product_name, inquirerResponse.stock_quantity (number user ordered), and res.price as parameters
+                fulfillOrder(res.product_name, inquirerResponse.stock_quantity, res.price);
               }
 
 
@@ -105,14 +123,44 @@ function userPrompt() {
 
 
 //FULFILL ORDER FUNCTION
-    // show the customer the total cost of their purchase, item name, and item quantity
-    // Ask to confirm
-    // update the SQL database to reflect the remaining quantity.
-    // display thank you message
+function fulfillOrder(fulfillName, fulfillQuant, fulfillUnitPrice) {
+  // update the SQL database to reflect the remaining quantity.- this can be packaged as separate function or not depending on time
+
+  // show the customer the item name, item quantity, unit price- their receipt basically
+  printReceipt(fulfillName, fulfillQuant, fulfillUnitPrice);
+
+  console.log("Thank you for your purchase! Please come again.");
+  
+
+// ADVANCED PROMPT TREE- ADD LATER, NOT IN BASIC REQUIREMENTS
+  //start prompt here
+    //confirm order
+      /*if NO, 
+      prompt (two choices)
+        1- empty my cart and return to storefront? 
+              result:
+              return to storefront function
+
+        2- proceed with my purchase
+              result:
+              call fulfillOrder function again
+              functionally this means re-orint order details and ask customer again to confirm */
+      
+      //if YES
+      //call update db function- update the SQL database to reflect the remaining quantity.
+      //log thank you message 
+      //"back to store front" single-option prompt
+          // runs return to storefront function  
+}
+
+
+
+
+    // update the SQL database to reflect the remaining quantity.- this can be packaged as separate function
+
 
     // re-set for next order
-    // call printItems(); 
-    // call userPrompt();
+
 // END FULFILL ORDER FUNCTION
 
 
@@ -122,6 +170,15 @@ function notAvailableErrorMessage(stringWhatIsntAvailable) { //can enter any str
   userPrompt(); //re-initializes user prompt
 }
 //END ERROR FUNCTION WHEN AN ITEM OR QUANTITY IS NOT AVAILABLE
+
+
+//RESET TO STOREFRONT FUNCTION
+  // optionally clear console
+  // console.log("\nWelcome to the Tiny Storefront!\nAn online boutique specializing in equipment for your outdoor hobbies.");
+  // call printItems(); 
+  // call userPrompt();
+//END RESET TO STOREFRONT FUNCTION
+
 
 //================== END FUNCTIONS =======================//
 
