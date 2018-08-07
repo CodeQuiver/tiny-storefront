@@ -64,23 +64,41 @@ function userPrompt() {
         {
             type: "input",
             message: "\nTo place an order, please enter the item's ID number from above.",
-            name: "itemID"
+            name: "UserItemID"
         },
         // Quantity
         {
             type: "input",
             message: "How many would you like?",
-            name: "itemQuantity"
+            name: "userItemQuantity"
         }])
         .then(function(inquirerResponse){ //process user's responses
+          connection.query("SELECT * FROM products WHERE ?", [
+            {
+              item_id: inquirerResponse.UserItemID
+            }
+          ], function(err, res) {
+              if (err) throw err;
+              console.log("TESTING - response entries that match id selected only: ");
+              console.log(res);
+
+              //Check if query returned a response with no matches- would be an empty array, call error message function
+              if(res == [] || res == 0){
+                var errorStringID = "no item with an ID of " + inquirerResponse.UserItemID + " is";
+                notAvailableErrorMessage(errorStringID);
+              }
+              else if(res.stock_quantity < inquirerResponse.stock_quantity){
+                var errorStringQuant = "insufficient quantity";
+                notAvailableErrorMessage(errorStringQuant);
+              }
+              else{
+                console.log("TESTING- This is where the fulfill order function would run");
+                // run fulfillOrder function
+              }
 
 
-          //match item id (inquirerResponse.itemID) to database item id- check if it exists and has a quantity
-            //if no, return to error prompt -> notAvailableErrorMessage("no item with an ID of BLANK is");
+          });
 
-            //if yes, new logic tree to check if item is available
-              //if quantity in database < quantity requested (inquirerResponse.itemQuantity), call error prompt function -> notAvailableErrorMessage("insufficient quantity");
-              //if quantity in database > quantity requested (inquirerResponse.itemQuantity), run fulfillOrder function
         });
 }
 //END INQUIRER FUNCTION
