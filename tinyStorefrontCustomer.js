@@ -104,14 +104,14 @@ function userPrompt() {
                 var errorStringID = "no item with an ID of " + inquirerResponse.UserItemID + " is";
                 notAvailableErrorMessage(errorStringID);
               }
-              else if(res.stock_quantity < inquirerResponse.stock_quantity){
+              else if(res.stock_quantity < inquirerResponse.userItemQuantity){
                 var errorStringQuant = "insufficient quantity";
                 notAvailableErrorMessage(errorStringQuant);
               }
               else{
                 console.log("TESTING- fulfill order function about to run");
                 // run fulfillOrder function with res.product_name, inquirerResponse.stock_quantity (number user ordered), and res.price as parameters
-                fulfillOrder(res.product_name, inquirerResponse.stock_quantity, res.price);
+                fulfillOrder(res.item_id, res.product_name, inquirerResponse.userItemQuantity, res.price);
               }
 
 
@@ -123,13 +123,27 @@ function userPrompt() {
 
 
 //FULFILL ORDER FUNCTION
-function fulfillOrder(fulfillName, fulfillQuant, fulfillUnitPrice) {
+function fulfillOrder(fulfillID, fulfillName, fulfillQuant, fulfillUnitPrice) {
   // update the SQL database to reflect the remaining quantity.- this can be packaged as separate function or not depending on time
 
-  // show the customer the item name, item quantity, unit price- their receipt basically
-  printReceipt(fulfillName, fulfillQuant, fulfillUnitPrice);
+  connection.query(
+    "UPDATE products SET ? WHERE ?",
+    [
+      {
+        stock_quantity: stock_quantity - fulfillQuant
+      },
+      {
+        item_id: fulfillID
+      }
+    ],
+    function(error) {
+      if (error) throw err;
 
-  console.log("Thank you for your purchase! Please come again.");
+      // show the customer the item name, item quantity, unit price- their receipt basically
+      printReceipt(fulfillName, fulfillQuant, fulfillUnitPrice);
+      console.log("Thank you for your purchase! Please come again.\n");
+    }
+  );
   
 
 // ADVANCED PROMPT TREE- ADD LATER, NOT IN BASIC REQUIREMENTS
@@ -173,10 +187,12 @@ function notAvailableErrorMessage(stringWhatIsntAvailable) { //can enter any str
 
 
 //RESET TO STOREFRONT FUNCTION
-  // optionally clear console
-  // console.log("\nWelcome to the Tiny Storefront!\nAn online boutique specializing in equipment for your outdoor hobbies.");
-  // call printItems(); 
-  // call userPrompt();
+function resetStorefront() {
+  console.clear();
+  console.log("\nWelcome to the Tiny Storefront!\nAn online boutique specializing in equipment for your outdoor hobbies.");
+  printItems(userPrompt); 
+}
+
 //END RESET TO STOREFRONT FUNCTION
 
 
