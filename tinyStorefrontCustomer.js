@@ -153,9 +153,9 @@ function fulfillOrder(fulfillID, fulfillName, originalQuant, fulfillQuant, fulfi
       restartPrompt(); //asks user if they want to return to beginning
     }
   );
-  
+}  
 
-// ADVANCED PROMPT TREE- ADD LATER, NOT IN BASIC REQUIREMENTS
+  // ADVANCED PROMPT TREE- ADD LATER, NOT IN BASIC REQUIREMENTS
   //start prompt here
     //confirm order
       /*if NO, 
@@ -174,12 +174,6 @@ function fulfillOrder(fulfillID, fulfillName, originalQuant, fulfillQuant, fulfi
       //log thank you message 
       //"back to store front" single-option prompt
           // runs return to storefront function  
-}
-
-
-
-
-    // update the SQL database to reflect the remaining quantity.- this can be packaged as separate function
 
 
     // re-set for next order
