@@ -110,8 +110,12 @@ function userPrompt() {
               }
               else{
                 console.log("TESTING- fulfill order function about to run");
+
+                //converting strings to integers
+                var idInteger = parseInt(res.item_id);
+
                 // run fulfillOrder function with res.product_name, inquirerResponse.stock_quantity (number user ordered), and res.price as parameters
-                fulfillOrder(res.item_id, res.product_name, inquirerResponse.userItemQuantity, res.price);
+                fulfillOrder(idInteger, res.product_name, res.stock_quantity, inquirerResponse.userItemQuantity, res.price);
               }
 
 
@@ -123,24 +127,29 @@ function userPrompt() {
 
 
 //FULFILL ORDER FUNCTION
-function fulfillOrder(fulfillID, fulfillName, fulfillQuant, fulfillUnitPrice) {
+function fulfillOrder(fulfillID, fulfillName, originalQuant, fulfillQuant, fulfillUnitPrice) {
   // update the SQL database to reflect the remaining quantity.- this can be packaged as separate function or not depending on time
+  var newQuant = parseInt(originalQuant) - parseInt(fulfillQuant);
+  newQuant = parseInt(newQuant);
 
   connection.query(
     "UPDATE products SET ? WHERE ?",
     [
       {
-        stock_quantity: stock_quantity - fulfillQuant
+        stock_quantity: newQuant
       },
       {
         item_id: fulfillID
       }
     ],
-    function(error) {
-      if (error) throw err;
-
+    function(err, res) {
+      console.log("TEST- AFTER ERROR FUNCTION BEGINS");
+      if (err) throw err;
+      console.log("TEST- AFTER THROW ERROR PART OF FUNCTION, ABOUT TO LOG RESPONSE");
+      // console.log(res);
       // show the customer the item name, item quantity, unit price- their receipt basically
-      printReceipt(fulfillName, fulfillQuant, fulfillUnitPrice);
+      // var printUnitPrice = fulfillUnitPrice;
+      printReceipt(fulfillName, fulfillQuant, printUnitPrice);
       console.log("Thank you for your purchase! Please come again.\n");
     }
   );
