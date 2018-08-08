@@ -104,7 +104,7 @@ function userPrompt() {
                 var errorStringID = "no item with an ID of " + inquirerResponse.UserItemID + " is";
                 notAvailableErrorMessage(errorStringID);
               }
-              else if(res.stock_quantity < inquirerResponse.userItemQuantity){
+              else if(res[0].stock_quantity < inquirerResponse.userItemQuantity){
                 var errorStringQuant = "insufficient quantity";
                 notAvailableErrorMessage(errorStringQuant);
               }
@@ -112,10 +112,10 @@ function userPrompt() {
                 console.log("TESTING- fulfill order function about to run");
 
                 //converting strings to integers
-                var idInteger = parseInt(res.item_id);
+                var idInteger = parseInt(res[0].item_id);
 
                 // run fulfillOrder function with res.product_name, inquirerResponse.stock_quantity (number user ordered), and res.price as parameters
-                fulfillOrder(idInteger, res.product_name, res.stock_quantity, inquirerResponse.userItemQuantity, res.price);
+                fulfillOrder(idInteger, res[0].product_name, res[0].stock_quantity, inquirerResponse.userItemQuantity, res[0].price);
               }
 
 
@@ -148,7 +148,7 @@ function fulfillOrder(fulfillID, fulfillName, originalQuant, fulfillQuant, fulfi
       console.log("TEST- AFTER THROW ERROR PART OF FUNCTION, ABOUT TO LOG RESPONSE");
       // console.log(res);
       // show the customer the item name, item quantity, unit price- their receipt basically
-      // var printUnitPrice = fulfillUnitPrice;
+      var printUnitPrice = fulfillUnitPrice;
       printReceipt(fulfillName, fulfillQuant, printUnitPrice);
       console.log("Thank you for your purchase! Please come again.\n");
     }
