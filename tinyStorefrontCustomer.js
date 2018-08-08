@@ -57,10 +57,10 @@ function printItems(callback) {
 //PRINT RECEIPT
 function printReceipt(orderedItemName, orderedItemQuant, orderedItemUnitPrice) {
   // show the customer the item name, item quantity, unit price
-  console.log("Your Order Details: " +
+  console.log("\nYour Order Details: " +
   "\n" + orderedItemName +
   "\nUnit Price: " + orderedItemUnitPrice.toLocaleString("en-US", {style: "currency", currency: "USD", minimumFractionDigits: 2}) + 
-  "Quantity: " + orderedItemQuant
+  "\nQuantity: " + orderedItemQuant
   );
 
   // calculate total cost of purchase
@@ -96,8 +96,8 @@ function userPrompt() {
             }
           ], function(err, res) {
               if (err) throw err;
-              console.log("TESTING - response entries that match id selected only: ");
-              console.log(res);
+              // console.log("TESTING - response entries that match id selected only: ");
+              // console.log(res);
 
               //Check if query returned a response with no matches- would be an empty array, call error message function
               if(res == [] || res == 0){
@@ -109,7 +109,7 @@ function userPrompt() {
                 notAvailableErrorMessage(errorStringQuant);
               }
               else{
-                console.log("TESTING- fulfill order function about to run");
+                // console.log("TESTING- fulfill order function about to run");
 
                 //converting strings to integers
                 var idInteger = parseInt(res[0].item_id);
@@ -143,14 +143,14 @@ function fulfillOrder(fulfillID, fulfillName, originalQuant, fulfillQuant, fulfi
       }
     ],
     function(err, res) {
-      console.log("TEST- AFTER ERROR FUNCTION BEGINS");
+      // console.log("TEST- AFTER ERROR FUNCTION BEGINS");
       if (err) throw err;
-      console.log("TEST- AFTER THROW ERROR PART OF FUNCTION, ABOUT TO LOG RESPONSE");
-      // console.log(res);
+      // console.log("TEST- AFTER THROW ERROR PART OF FUNCTION, ABOUT TO LOG RESPONSE");
+
       // show the customer the item name, item quantity, unit price- their receipt basically
-      var printUnitPrice = fulfillUnitPrice;
-      printReceipt(fulfillName, fulfillQuant, printUnitPrice);
-      console.log("Thank you for your purchase! Please come again.\n");
+      printReceipt(fulfillName, fulfillQuant, fulfillUnitPrice);
+      console.log("\nOrder Complete.\nThank you for your purchase! Please come again.\n");
+      restartPrompt(); //asks user if they want to return to beginning
     }
   );
   
@@ -167,7 +167,7 @@ function fulfillOrder(fulfillID, fulfillName, originalQuant, fulfillQuant, fulfi
         2- proceed with my purchase
               result:
               call fulfillOrder function again
-              functionally this means re-orint order details and ask customer again to confirm */
+              functionally this means re-print order details and ask customer again to confirm */
       
       //if YES
       //call update db function- update the SQL database to reflect the remaining quantity.
@@ -194,12 +194,43 @@ function notAvailableErrorMessage(stringWhatIsntAvailable) { //can enter any str
 }
 //END ERROR FUNCTION WHEN AN ITEM OR QUANTITY IS NOT AVAILABLE
 
+//RE-START PROMPT FUNCTION
+function restartPrompt() {
+  inquirer
+    .prompt([
+        // confirmation of restart prompt
+        {
+            type: "list",
+            message: "\nClear console and return to storefront?",
+            choices: ["OK"],
+            name: "okGoHome"
+        }])
+        .then(function(inquirerResponse){ //process user's responses, matching against database
+            resetStorefront();
+         });
+        };
+
+//END RE-START PROMPT FUNCTION
+
 
 //RESET TO STOREFRONT FUNCTION
 function resetStorefront() {
   console.clear();
   console.log("\nWelcome to the Tiny Storefront!\nAn online boutique specializing in equipment for your outdoor hobbies.");
-  printItems(userPrompt); 
+  inquirer
+    .prompt([
+        // prompt asking user if they'd like to see the items for sale- this lets the initial message be read before the console is full of item details
+        {
+            type: "list",
+            message: "View Items For Sale?",
+            choices: ["Yes"],
+            name: "displayItems"
+        }])
+        .then(function(inquirerResponse){ 
+          //process user's responses, though in this case there's only one choice so no logic needed
+            printItems(userPrompt); 
+         });       
+  
 }
 
 //END RESET TO STOREFRONT FUNCTION
@@ -214,13 +245,9 @@ function resetStorefront() {
 connection.connect(function(err) {
   if (err) throw err;
   // console.log("connected as id " + connection.threadId);
-  console.log("\nWelcome to the Tiny Storefront!\nAn online boutique specializing in equipment for your outdoor hobbies.");
-
 });
 
-//print items for sale to console, then use callback to prompt user for selection
-printItems(userPrompt);
-
+resetStorefront(); //starts storefront up using reset function
 
 //================== END MAIN PROGRAM FLOW =======================//
 
@@ -228,9 +255,6 @@ printItems(userPrompt);
   /* 1- Lots of console-logging in this app, so using \n character before new entries rather than after entries as my convention
   so that I won't end up doubling line spacing, and before makes more sense because extra line spaces
   are for visual separation of the new entry- if I add to end more likely to have unnecessary trailing line spacing */
-
-  
-
 
 
 //=========== END COMMENTS =========//
