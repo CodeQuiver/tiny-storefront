@@ -148,7 +148,7 @@ function confirmOrderPrompt(res, confirmQuantity) {
           // console.log(inquirerResponse); ---for TEST purposes
           if (inquirerResponse.confirmOrder == false) {
                 // if NO to confirmation
-                console.log("TEST- ORDER CONFIRMED FALSE RESPONSE");
+                // console.log("TEST- ORDER CONFIRMED FALSE RESPONSE");
 
               //START new prompt asking if they want to cancel
               inquirer
@@ -176,7 +176,7 @@ function confirmOrderPrompt(res, confirmQuantity) {
             }
                   //END of nested prompt section
           else if (inquirerResponse.confirmOrder == true){
-          console.log("TEST- ORDER CONFIRMED TRUE RESPONSE");
+          // console.log("TEST- ORDER CONFIRMED TRUE RESPONSE");
           //if YES
           //call fulfillOrder function
           //run fulfillOrder function with res.product_name, inquirerResponse.stock_quantity (number user ordered), and res.price as parameters
