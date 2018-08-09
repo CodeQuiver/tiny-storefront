@@ -109,13 +109,15 @@ function userPrompt() {
                 notAvailableErrorMessage(errorStringQuant);
               }
               else{
+                // call confirm prompt function and pass entire result
+                confirmOrderPrompt(res, inquirerResponse.userItemQuantity);
+
                 // console.log("TESTING- fulfill order function about to run");
 
                 //converting strings to integers
-                var idInteger = parseInt(res[0].item_id);
+                // var idInteger = parseInt(res[0].item_id);
 
-                // run fulfillOrder function with res.product_name, inquirerResponse.stock_quantity (number user ordered), and res.price as parameters
-                fulfillOrder(idInteger, res[0].product_name, res[0].stock_quantity, inquirerResponse.userItemQuantity, res[0].price);
+
               }
 
 
@@ -124,6 +126,89 @@ function userPrompt() {
         });
 }
 //END INQUIRER FUNCTION
+
+//CONFIRM PROMPT FUNCTION
+//this function is to add a confirmation stage before the item is ordered and the database is updated
+//more in line with real-life online shopping
+function confirmOrderPrompt(res, confirmQuantity) {
+  //first, print order information
+  printReceipt(res[0].product_name, confirmQuantity, res[0].price);
+
+  inquirer
+    .prompt([
+      //confirm order
+      {
+          type: "confirm",
+          message: "\nWould you like to finalize this order?",
+          name: "confirmOrder"
+      }
+    ])
+      .then(function(inquirerResponse){
+        
+          // console.log(inquirerResponse); ---for TEST purposes
+          if (inquirerResponse.confirmOrder == false) {
+                // if NO to confirmation
+                console.log("TEST- ORDER CONFIRMED FALSE RESPONSE");
+
+              //START new prompt asking if they want to cancel
+              inquirer
+                .prompt([
+                  {
+                    type: "list",
+                    message: "\nWould you like to cancel your order?",
+                    choices: ["Yes, empty my cart and return me to the storefront.",
+                              "No, actually I'd like to continue checkout."],
+                    name: "cancelNextStep"
+                  }
+                ])
+                .then(function(inquirerCancellationResponse){
+                  console.log(inquirerCancellationResponse);
+                  if (inquirerCancellationResponse.cancelNextStep == "Yes, empty my cart and return me to the storefront.") {
+                    resetStorefront();
+                  } else if(inquirerCancellationResponse.cancelNextStep == "No, actually I'd like to continue checkout."){
+                    confirmOrderPrompt(res, confirmQuantity); 
+                  } else {
+                    //if somehow neither given option, other error response
+                    console.log("Your answer doesn't make sense, or we are having technical difficulties- please try again.");
+                    confirmOrderPrompt();
+                  }
+                });
+            }
+                  //END of nested prompt section
+          else if (inquirerResponse.confirmOrder == true){
+          console.log("TEST- ORDER CONFIRMED TRUE RESPONSE");
+          //if YES
+          //call fulfillOrder function
+          //run fulfillOrder function with res.product_name, inquirerResponse.stock_quantity (number user ordered), and res.price as parameters
+          fulfillOrder(res[0].item_id, res[0].product_name, res[0].stock_quantity, confirmQuantity, res[0].price);
+        }
+          else {
+            //if somehow not true or false, other error response
+            console.log("Your answer doesn't make sense, or we are having technical difficulties- please try again.");
+            confirmOrderPrompt();            
+       }
+      }
+    );
+}
+  //start prompt here
+
+      /*if NO, 
+      prompt (two choices)
+        1- empty my cart and return to storefront? 
+              result:
+              return to storefront function
+
+        2- proceed with my purchase
+              result:
+              call fulfillOrder function again
+              functionally this means re-print order details and ask customer again to confirm */
+      
+      //if YES
+      //call update db function- update the SQL database to reflect the remaining quantity.
+      //log thank you message 
+      //"back to store front" single-option prompt
+          // runs return to storefront function  
+//END CONFIRM PROMPT FUNCTION
 
 
 //FULFILL ORDER FUNCTION
@@ -155,25 +240,7 @@ function fulfillOrder(fulfillID, fulfillName, originalQuant, fulfillQuant, fulfi
   );
 }  
 
-  // ADVANCED PROMPT TREE- ADD LATER, NOT IN BASIC REQUIREMENTS
-  //start prompt here
-    //confirm order
-      /*if NO, 
-      prompt (two choices)
-        1- empty my cart and return to storefront? 
-              result:
-              return to storefront function
-
-        2- proceed with my purchase
-              result:
-              call fulfillOrder function again
-              functionally this means re-print order details and ask customer again to confirm */
-      
-      //if YES
-      //call update db function- update the SQL database to reflect the remaining quantity.
-      //log thank you message 
-      //"back to store front" single-option prompt
-          // runs return to storefront function  
+  
 
 
     // re-set for next order
@@ -187,6 +254,7 @@ function notAvailableErrorMessage(stringWhatIsntAvailable) { //can enter any str
   userPrompt(); //re-initializes user prompt
 }
 //END ERROR FUNCTION WHEN AN ITEM OR QUANTITY IS NOT AVAILABLE
+
 
 //RE-START PROMPT FUNCTION
 function restartPrompt() {
