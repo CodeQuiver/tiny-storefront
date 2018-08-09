@@ -162,7 +162,7 @@ function confirmOrderPrompt(res, confirmQuantity) {
                   }
                 ])
                 .then(function(inquirerCancellationResponse){
-                  console.log(inquirerCancellationResponse);
+                  // console.log(inquirerCancellationResponse);
                   if (inquirerCancellationResponse.cancelNextStep == "Yes, empty my cart and return me to the storefront.") {
                     resetStorefront();
                   } else if(inquirerCancellationResponse.cancelNextStep == "No, actually I'd like to continue checkout."){
